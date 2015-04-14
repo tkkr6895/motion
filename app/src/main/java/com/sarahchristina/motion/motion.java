@@ -6,6 +6,9 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -17,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.widget.TextView;
 import android.widget.Button;
+import android.widget.Toast;
 
 import java.util.HashMap;
 
@@ -24,6 +28,7 @@ import java.util.HashMap;
 @SuppressLint("NewApi")
 public class motion extends Activity implements SensorEventListener {
 
+    Context context = this;
     private float lastX, lastY, lastZ;
 
     private SensorManager sensorManager;
@@ -54,6 +59,29 @@ public class motion extends Activity implements SensorEventListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initializeViews();
+        //BEGIN SPEED MODULE
+        LocationManager locationManager = (LocationManager) this
+                .getSystemService(Context.LOCATION_SERVICE);
+        LocationListener locationListener = new LocationListener() {
+            public void onLocationChanged(Location location) {
+                location.getLatitude();
+                Toast.makeText(context, "Current speed:" + location.getSpeed(), Toast.LENGTH_SHORT).show();
+            }
+
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+            }
+            public void onProviderEnabled(String provider) {
+            }
+            public void onProviderDisabled(String provider) {
+            }
+        };
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
+                0, locationListener);
+
+        //END SPEED MODULE
+
+
+
 
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         if (sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null) {
@@ -78,6 +106,7 @@ public class motion extends Activity implements SensorEventListener {
 
     }
 
+
     public void initializeViews() {
         setContentView(R.layout.activity_main);
         currentX = (TextView) findViewById(R.id.currentX);
@@ -89,7 +118,12 @@ public class motion extends Activity implements SensorEventListener {
         maxZ = (TextView) findViewById(R.id.maxZ);
         btnstart = (Button) findViewById(R.id.start);
         result = (TextView) findViewById(R.id.result);
+
+
+
     }
+
+
 
     //onResume() register the accelerometer for listening the events
     protected void onResume() {
@@ -178,6 +212,9 @@ public class motion extends Activity implements SensorEventListener {
         }
     }
 
+
+
+
     public class CounterClass extends CountDownTimer {
         public CounterClass(long millisInFuture, long countDownInterval) {
             super(millisInFuture, countDownInterval);
@@ -243,6 +280,10 @@ public class motion extends Activity implements SensorEventListener {
             //String finalresult = new Float(totaltime).toString();
             //result.setText(finalresult);
         }
+
+
+
+
 
         @TargetApi(Build.VERSION_CODES.GINGERBREAD)
         @SuppressLint("NewApi")
